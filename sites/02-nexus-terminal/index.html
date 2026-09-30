@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS//NULL — 赛博终端 3D 作品集</title>
+  <meta name="description" content="NEXUS//NULL：线框赛博朋克风格的 3D 个人站点，含启动序列、命令面板、可交互终端与故障艺术动效。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="site-nexus">
+  <!-- 启动遮罩 -->
+  <div class="boot" id="boot">
+    <div class="boot-inner">
+      <pre class="boot-logo">
+ ███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗
+ ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝
+ ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗
+ ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║
+ ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║
+ ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝</pre>
+      <div class="boot-lines" id="bootLines"></div>
+      <div class="boot-bar"><span id="bootBar"></span></div>
+    </div>
+  </div>
+
+  <!-- 背景 -->
+  <div class="stage-wrap" aria-hidden="true">
+    <canvas id="stage"></canvas>
+    <canvas id="rain"></canvas>
+    <div class="scanlines"></div>
+    <div class="crt"></div>
+  </div>
+
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress"></div></div>
+  <nav class="fx-rail rail-right" aria-label="章节导航"></nav>
+
+  <!-- 顶栏 -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#hero" data-cursor="TOP">
+        <span class="brand-glyph">◤</span> NEXUS<span class="brand-null">//NULL</span>
+      </a>
+      <nav class="topnav" aria-label="主导航">
+        <a href="#ops" data-cursor>//OPS</a>
+        <a href="#stack" data-cursor>//STACK</a>
+        <a href="#terminal" data-cursor>//SHELL</a>
+        <a href="#contact" data-cursor>//PING</a>
+      </nav>
+      <div class="topbar-right">
+        <span class="status-pill" id="statusPill"><i class="led"></i> <span id="statusText">SYNCING</span></span>
+        <span class="clock" id="clock">--:--:--</span>
+        <button class="btn btn-kbd" id="paletteOpen" data-cursor="CTRL+K">⌘K</button>
+      </div>
+    </div>
+    <div class="hairline"></div>
+  </header>
+
+  <main>
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" id="hero">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <p class="tagline" data-reveal="left">
+            <span class="brk">[</span> CREATIVE ENGINEER · SHANGHAI · UTC+8 <span class="brk">]</span>
+          </p>
+          <h1 class="hero-title glitch" data-text="构建不会崩坏的界面">
+            <span class="glitch-layer">构建不会崩坏的界面</span>
+          </h1>
+          <p class="hero-typed">
+            <span class="prompt">root@nexus:~$</span>
+            <span id="typed"></span>
+          </p>
+          <p class="hero-desc" data-reveal="up" data-reveal-delay="180">
+            我是 <b>KAI / 凯</b>，八年前端、三年图形。这个站点是手写的 3D 光栅器 +
+            故障艺术组件库的现场演示：没有引擎、没有框架，只有 <code>canvas.getContext('2d')</code>
+            和一堆三角函数。
+          </p>
+          <div class="hero-cta" data-reveal="up" data-reveal-delay="260">
+            <a class="btn btn-solid cut" href="#ops" data-magnetic data-cursor="EXEC">
+              <span>[ 执行 ] 查看任务记录</span>
+            </a>
+            <button class="btn btn-line cut" id="paletteOpen2" data-magnetic data-cursor="CTRL+K">
+              <span>[ ⌘K ] 命令面板</span>
+            </button>
+            <a class="btn btn-ghost cut" href="#terminal" data-cursor="SHELL">[ &gt;_ ] 打开终端</a>
+          </div>
+
+          <dl class="readouts" data-reveal="up" data-reveal-delay="340">
+            <div class="readout"><dt>UPTIME</dt><dd><span data-count="8" data-suffix="y">0</span></dd></div>
+            <div class="readout"><dt>SESSIONS</dt><dd><span data-count="1240" data-suffix="">0</span></dd></div>
+            <div class="readout"><dt>LATENCY</dt><dd><span id="fpsReadout">--</span></dd></div>
+            <div class="readout"><dt>TRI/FRAME</dt><dd><span id="triReadout">--</span></dd></div>
+          </dl>
+        </div>
+
+        <aside class="hero-right">
+          <div class="panel corner" data-reveal="right">
+            <header class="panel-head">
+              <span>SYS.MONITOR</span><span class="panel-tag" id="monTag">LIVE</span>
+            </header>
+            <div class="bars" id="bars"></div>
+            <div class="panel-foot">
+              <span id="memLabel">MEM 41%</span>
+              <span id="netLabel">NET 12.4 Mb/s</span>
+            </div>
+          </div>
+          <div class="panel corner feed" data-reveal="right" data-reveal-delay="120">
+            <header class="panel-head"><span>KERNEL.LOG</span><span class="panel-tag">tail -f</span></header>
+            <ul id="logFeed"></ul>
+          </div>
+        </aside>
+      </div>
+
+      <div class="hero-bottom" aria-hidden="true">
+        <div class="ticker" id="ticker1">
+          <div class="ticker-inner">
+            <span>WEBGL-FREE</span><i>///</i><span>SOFTWARE RASTERIZER</span><i>///</i>
+            <span>0 DEPENDENCIES</span><i>///</i><span>60FPS BUDGET</span><i>///</i>
+            <span>ACCESSIBLE MOTION</span><i>///</i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ OPS ============================= -->
+    <section class="section" id="ops">
+      <header class="section-head">
+        <p class="section-kicker">01 // OPERATIONS</p>
+        <h2 class="section-title">任务记录</h2>
+        <p class="section-lead">
+          每张卡片都挂着真实的渲染数据。悬停会触发故障抖动，点击进入详情。
+        </p>
+      </header>
+
+      <div class="ops-grid" id="opsGrid"></div>
+    </section>
+
+    <!-- =========================== STACK ============================ -->
+    <section class="section" id="stack">
+      <header class="section-head">
+        <p class="section-kicker">02 // CAPABILITY MATRIX</p>
+        <h2 class="section-title">能力矩阵</h2>
+      </header>
+
+      <div class="matrix">
+        <div class="matrix-tabs" id="matrixTabs">
+          <button class="mtab is-active" data-tab="render">RENDER</button>
+          <button class="mtab" data-tab="logic">LOGIC</button>
+          <button class="mtab" data-tab="craft">CRAFT</button>
+        </div>
+        <div class="matrix-body" id="matrixBody"></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="panel corner pad" data-reveal="up">
+          <h4>ENGINE / dse.js</h4>
+          <ul class="datalist">
+            <li><span>几何体</span><b>20</b></li>
+            <li><span>程序化贴图</span><b>13</b></li>
+            <li><span>着色模式</span><b>9</b></li>
+            <li><span>体积</span><b>~60 KB</b></li>
+          </ul>
+        </div>
+        <div class="panel corner pad" data-reveal="up" data-reveal-delay="90">
+          <h4>COMPONENTS / fx.js</h4>
+          <ul class="datalist">
+            <li><span>缓动函数</span><b>22</b></li>
+            <li><span>画布背景</span><b>9</b></li>
+            <li><span>交互组件</span><b>12</b></li>
+            <li><span>依赖</span><b>0</b></li>
+          </ul>
+        </div>
+        <div class="panel corner pad" data-reveal="up" data-reveal-delay="180">
+          <h4>QUALITY GATE</h4>
+          <ul class="datalist">
+            <li><span>对比度</span><b>AA+</b></li>
+            <li><span>键盘可达</span><b>YES</b></li>
+            <li><span>降级动效</span><b>YES</b></li>
+            <li><span>离线可用</span><b>YES</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== TERMINAL ========================== -->
+    <section class="section" id="terminal">
+      <header class="section-head">
+        <p class="section-kicker">03 // INTERACTIVE SHELL</p>
+        <h2 class="section-title">这真的是个终端</h2>
+        <p class="section-lead">输入 <code>help</code> 开始。支持 <code>whoami</code>、<code>skills</code>、<code>contact</code>、<code>clear</code>、<code>theme</code> 等命令。</p>
+      </header>
+
+      <div class="terminal panel corner" data-reveal="up">
+        <header class="term-head">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span>kai@nexus: ~/portfolio</span>
+          <span class="term-hint">type <b>help</b></span>
+        </header>
+        <div class="term-body" id="termBody" tabindex="0">
+          <div class="term-line out" id="termOut"></div>
+          <div class="term-input-row">
+            <span class="prompt">kai@nexus:~$</span>
+            <input id="termInput" autocomplete="off" spellcheck="false" aria-label="终端输入" placeholder="输入命令…">
+          </div>
+        </div>
+      </div>
+
+      <div class="warn-banner corner" data-reveal="up" data-reveal-delay="120">
+        <b>!</b> 这是演示用的沙箱，不会真的执行任何系统命令。
+      </div>
+    </section>
+
+    <!-- =========================== CONTACT ========================== -->
+    <section class="section" id="contact">
+      <div class="contact panel corner" data-reveal="scale">
+        <p class="section-kicker">04 // PING</p>
+        <h2 class="section-title big">发起一次握手</h2>
+        <p>目前开放 2025 Q4 档期。邮件优先，通常 24 小时内响应。</p>
+        <form class="handshake" id="pingForm">
+          <label class="field"><span>IDENT</span><input name="name" placeholder="你的名字" required></label>
+          <label class="field"><span>CHANNEL</span><input type="email" name="email" placeholder="you@domain.dev" required></label>
+          <label class="field wide"><span>PAYLOAD</span><textarea name="msg" rows="3" placeholder="想做什么？"></textarea></label>
+          <button class="btn btn-solid cut" type="submit" data-cursor="SEND">[ 发送信号 ]</button>
+        </form>
+        <div class="contact-links">
+          <a href="mailto:kai@nexus.dev" data-cursor>kai@nexus.dev</a>
+          <button class="linkish" id="copyMail" data-cursor="COPY">复制邮箱</button>
+          <a href="#hero" data-cursor>回到顶部</a>
+        </div>
+      </div>
+      <footer class="foot">
+        <span>© 2025 KAI · NEXUS//NULL build 2.0.7</span>
+        <span class="foot-hint">按 <b>Ctrl/⌘ + K</b> 打开命令面板</span>
+      </footer>
+    </section>
+  </main>
+
+  <!-- 命令面板 -->
+  <div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="命令面板">
+    <div class="palette-panel panel corner">
+      <div class="palette-input">
+        <span class="prompt">&gt;</span>
+        <input id="paletteInput" placeholder="输入命令或搜索…" autocomplete="off" spellcheck="false">
+      </div>
+      <ul class="palette-list" id="paletteList"></ul>
+      <div class="palette-foot"><span>↑↓ 选择</span><span>↵ 执行</span><span>esc 关闭</span></div>
+    </div>
+  </div>
+
+  <script src="../../vendor/dse.js"></script>
+  <script src="../../vendor/fx.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>

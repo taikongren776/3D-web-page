@@ -1,0 +1,11 @@
+URL: http://127.0.0.1:5178/
+runtime: loaded=true  wait=3000ms  scroll=0
+
+--- page diagnostics ---
+x
+
+--- CDP console (0) ---
+(none)
+
+--- uncaught exceptions (0) ---
+(none)

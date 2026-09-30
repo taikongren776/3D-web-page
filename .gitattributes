@@ -1,0 +1,24 @@
+# Normalise line endings in the repository so the sites behave identically on
+# every platform. The whole project is plain text (no binary assets except the
+# reference screenshots), so LF is the right canonical form.
+* text=auto eol=lf
+
+# Binary assets — never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Windows-only helper scripts keep CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Keep diffs readable in the GitHub UI.
+*.md text
+*.js text
+*.css text
+*.html text

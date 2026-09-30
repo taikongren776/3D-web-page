@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIVE WORLDS — 五个手写 3D 个人网站</title>
+  <meta name="description" content="五个不同风格、不同组件体系的 3D 个人网站集合：极光玻璃、赛博终端、蒸汽波桌面、瑞士编辑、粒子动能。全部由手写 Canvas 3D 引擎驱动，零依赖。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true">
+    <canvas id="stage"></canvas>
+    <canvas id="bg2d"></canvas>
+    <div class="veil"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress"></div></div>
+
+  <header class="topbar glass" id="topbar">
+    <a class="brand" href="#top" data-cursor="TOP">
+      <span class="brand-mark" aria-hidden="true"></span>
+      FIVE&nbsp;WORLDS
+    </a>
+    <nav class="topnav" aria-label="站点导航">
+      <a href="#sites" data-cursor>站点</a>
+      <a href="#engine" data-cursor>引擎</a>
+      <a href="#library" data-cursor>组件库</a>
+      <a href="#run" data-cursor>运行</a>
+    </nav>
+    <span class="badge-zero">0 依赖 · OFFLINE READY</span>
+  </header>
+
+  <main id="top">
+    <!-- ============================== HERO ============================== -->
+    <section class="hero">
+      <p class="kicker" data-reveal="none"><span class="dot"></span> DSE 1.0 · 手写 3D 光栅器 · 42 个动效组件</p>
+      <h1 class="title" id="title">五个世界<br />一套引擎</h1>
+      <p class="lede" data-reveal="up" data-reveal-delay="140">
+        同一个文件夹里有五个完整的个人网站：<b>极光玻璃</b>、<b>赛博终端</b>、<b>蒸汽波桌面</b>、
+        <b>瑞士编辑排版</b>、<b>粒子动能</b>。它们共用两个自己写的库——
+        <code>vendor/dse.js</code>（3D 引擎）与 <code>vendor/fx.js</code>（动效组件库），
+        没有 three.js、没有 GSAP、没有构建步骤。
+      </p>
+      <div class="cta" data-reveal="up" data-reveal-delay="220">
+        <a class="btn btn-primary" href="#sites" data-magnetic data-cursor="浏览">
+          <span>浏览五个站点</span><span class="arrow">→</span>
+        </a>
+        <button class="btn btn-glass" id="randomBtn" data-magnetic data-cursor="随机">🎲 随机打开一个</button>
+        <a class="btn btn-quiet" href="#engine" data-cursor="看实现">引擎怎么写的</a>
+      </div>
+
+      <dl class="stats" data-reveal="up" data-reveal-delay="300">
+        <div><dt>站点</dt><dd><span data-count="5">0</span></dd></div>
+        <div><dt>组件</dt><dd><span data-count="42">0</span></dd></div>
+        <div><dt>几何体</dt><dd><span data-count="20">0</span></dd></div>
+        <div><dt>程序化贴图</dt><dd><span data-count="13">0</span></dd></div>
+        <div><dt>外部依赖</dt><dd><span data-count="0">0</span></dd></div>
+      </dl>
+    </section>
+
+    <!-- ============================= SITES ============================= -->
+    <section class="section" id="sites">
+      <header class="sec-head">
+        <h2 data-reveal="up">五个站点</h2>
+        <p data-reveal="up" data-reveal-delay="90">
+          每张卡片都是实时渲染的缩略图，不是截图。点进去看完整站点。
+        </p>
+      </header>
+      <div class="grid" id="siteGrid"></div>
+    </section>
+
+    <!-- ============================= ENGINE ============================ -->
+    <section class="section" id="engine">
+      <header class="sec-head">
+        <h2 data-reveal="up">引擎是怎么工作的</h2>
+        <p data-reveal="up" data-reveal-delay="90">
+          没有 WebGL，所有画面都是 Canvas2D 上逐个三角形画出来的。四步：
+        </p>
+      </header>
+
+      <ol class="pipeline">
+        <li class="glass" data-reveal="up">
+          <b>01</b>
+          <h3>顶点变换</h3>
+          <p>每个网格把局部坐标乘上模型矩阵、再乘视图投影矩阵，得到裁剪空间坐标。所有顶点缓存在扁平
+            <code>Float32Array</code> 里，避免 GC 抖动。</p>
+        </li>
+        <li class="glass" data-reveal="up" data-reveal-delay="80">
+          <b>02</b>
+          <h3>背面剔除 + 光照</h3>
+          <p>用面法线与视线方向的点积剔除背面；支持 lambert / phong / metal / toon / glass 等九种着色模式，逐面计算漫反射与高光。</p>
+        </li>
+        <li class="glass" data-reveal="up" data-reveal-delay="160">
+          <b>03</b>
+          <h3>画家算法排序</h3>
+          <p>把这一帧所有可见三角形按深度从远到近排序，然后依次绘制。半透明材质因此天然正确，不需要深度缓冲。</p>
+        </li>
+        <li class="glass" data-reveal="up" data-reveal-delay="240">
+          <b>04</b>
+          <h3>可选泛光</h3>
+          <p>带自发光的三角形额外画到一张半分辨率图层上，模糊后以叠加模式合成，得到霓虹辉光——代价只有一次
+            <code>drawImage</code>。</p>
+        </li>
+      </ol>
+
+      <div class="codeblock glass" data-reveal="up">
+        <div class="codeblock-head"><span>最小组件示例</span><span class="live-dot"></span></div>
+        <pre><code>&lt;canvas id="stage"&gt;&lt;/canvas&gt;
+&lt;script src="vendor/dse.js"&gt;&lt;/script&gt;
+&lt;script src="vendor/fx.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const { Scene, Mesh, Light, geom, mat } = DSE;
+
+  const scene = new Scene(document.getElementById('stage'), {
+    bloom: 0.6, fog: { color: '#04060d', near: 5, far: 26 }
+  });
+  scene.add(new Light({ direction: [-0.5, 0.8, 0.6] }));
+
+  // 液态金属球：每帧被正弦波推动的球体
+  const g = FX.blobGeom({ radius: 1.4, amp: 0.16 });
+  const blob = new Mesh(g, mat.metal({ color: '#c9d8ff', specular: 1 }));
+  blob.spinY = 0.2;
+  blob.onUpdate = () =&gt; g.updateBlob(scene.clock);
+  scene.add(blob);
+
+  // 360 个带受力的粒子
+  scene.add(new DSE.Particles({ count: 360, shape: 'glow', twinkle: 0.8 }));
+  scene.start();
+&lt;/script&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- ============================ LIBRARY ============================ -->
+    <section class="section" id="library">
+      <header class="sec-head">
+        <h2 data-reveal="up">组件库清单</h2>
+        <p data-reveal="up" data-reveal-delay="90">点标签切换分类。</p>
+      </header>
+
+      <div class="tabs glass" id="libTabs" data-reveal="up">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn" data-tab="motion">动效</button>
+          <button class="tab-btn" data-tab="three">三维</button>
+          <button class="tab-btn" data-tab="input">交互</button>
+          <button class="tab-btn" data-tab="canvas">画布</button>
+          <button class="tab-btn" data-tab="ui">控件</button>
+        </div>
+        <div class="tab-panels">
+          <div class="tab-panel" data-panel="motion">
+            <ul class="comp">
+              <li><b>ease</b><span>22 个缓动函数，含弹性与回弹</span></li>
+              <li><b>reveal</b><span>九种入场姿态 + 自动错峰</span></li>
+              <li><b>textIn / split</b><span>字符级标题动画</span></li>
+              <li><b>typewriter</b><span>循环打字机</span></li>
+              <li><b>scramble</b><span>字符解码</span></li>
+              <li><b>counter</b><span>千分位数字滚动</span></li>
+              <li><b>marquee</b><span>无缝双向跑马灯</span></li>
+              <li><b>parallax</b><span>data-speed 视差</span></li>
+              <li><b>scrollProgress / scrollBar</b><span>滚动进度</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="three">
+            <ul class="comp">
+              <li><b>FX.scene.hero</b><span>水晶 / 液态球 / 环面结 / 壳体</span></li>
+              <li><b>FX.scene.gridArena</b><span>线框竞技场</span></li>
+              <li><b>FX.scene.retroGrid</b><span>蒸汽波地平线</span></li>
+              <li><b>FX.scene.monolith</b><span>石碑堆叠</span></li>
+              <li><b>FX.scene.constellation</b><span>星座网络</span></li>
+              <li><b>FX.scene.shards / dust</b><span>碎片与浮尘</span></li>
+              <li><b>geom.*</b><span>20 种程序化几何体</span></li>
+              <li><b>mat.*</b><span>9 种着色模式</span></li>
+              <li><b>tex.*</b><span>13 种程序化贴图</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="input">
+            <ul class="comp">
+              <li><b>cursor</b><span>双层自定义光标 + 状态标签</span></li>
+              <li><b>magnetic</b><span>磁性吸附</span></li>
+              <li><b>tilt</b><span>三维倾斜 + 高光</span></li>
+              <li><b>ripple</b><span>点击水波</span></li>
+              <li><b>spotlight</b><span>指针聚光</span></li>
+              <li><b>dragRail</b><span>拖拽横向轨道</span></li>
+              <li><b>scrollSpy / stickyNav</b><span>章节联动</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="canvas">
+            <ul class="comp">
+              <li><b>Backdrop: field</b><span>漂浮粒子</span></li>
+              <li><b>Backdrop: matrix</b><span>代码雨</span></li>
+              <li><b>Backdrop: bokeh</b><span>散景光斑</span></li>
+              <li><b>Backdrop: wave / lines</b><span>波形与流光</span></li>
+              <li><b>Backdrop: grid / stars / snow / bubbles / noise</b><span>共九种</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="ui">
+            <ul class="comp">
+              <li><b>toast</b><span>通知气泡</span></li>
+              <li><b>tabs / accordion</b><span>选项卡与折叠</span></li>
+              <li><b>modal</b><span>模态 + ESC 关闭</span></li>
+              <li><b>tooltip</b><span>自动挂载提示</span></li>
+              <li><b>sound</b><span>Web Audio 微交互音效</span></li>
+              <li><b>copy</b><span>剪贴板封装</span></li>
+              <li><b>mount / raf / prefersReduced</b><span>运行时工具</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== RUN ============================== -->
+    <section class="section" id="run">
+      <header class="sec-head">
+        <h2 data-reveal="up">怎么运行</h2>
+        <p data-reveal="up" data-reveal-delay="90">两种方式，随便挑一种。</p>
+      </header>
+
+      <div class="run-grid">
+        <div class="glass runcard" data-reveal="up">
+          <h3>① 直接双击</h3>
+          <p>每个站点都是自包含的静态页面，直接双击 <code>index.html</code> 就能看。
+            用相对路径引用 <code>../../vendor/</code>，所以整个文件夹要一起移动。</p>
+          <p class="muted">注意：<code>file://</code> 下 localStorage 在部分浏览器会被禁用，蒸汽波站点的留言板会退化为内存存储。</p>
+        </div>
+        <div class="glass runcard" data-reveal="up" data-reveal-delay="90">
+          <h3>② 起一个本地服务（推荐）</h3>
+          <p>仓库带了零依赖的静态服务器脚本：</p>
+          <pre class="mini"><code>node serve.js
+# 然后打开 http://127.0.0.1:5178/</code></pre>
+          <p class="muted">可以用环境变量换端口：<code>PORT=8080 node serve.js</code></p>
+        </div>
+      </div>
+
+      <div class="table glass" data-reveal="up" data-reveal-delay="160">
+        <div class="thead"><span>#</span><span>站点</span><span>风格</span><span>核心 3D 元素</span><span>面向</span></div>
+        <div id="tableRows"></div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span>© 2025 · 五个世界 · DSE + FX 手写引擎演示</span>
+      <span>Canvas2D · 零依赖 · 尊重 prefers-reduced-motion</span>
+    </footer>
+  </main>
+
+  <script src="vendor/dse.js"></script>
+  <script src="vendor/fx.js"></script>
+  <script src="landing.js"></script>
+</body>
+
+</html>

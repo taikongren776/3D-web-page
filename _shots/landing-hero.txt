@@ -1,0 +1,33 @@
+URL: http://127.0.0.1:5178/
+runtime: loaded=true  wait=4000ms  scroll=0
+
+--- page diagnostics ---
+{
+ "loaded": "complete",
+ "rafCount": 1586,
+ "errors": [],
+ "errorCount": 0,
+ "revealTotal": 26,
+ "revealActivated": 4,
+ "canvases": [
+  "stage 1418x802 painted=1",
+  "bg2d 1418x802 painted=6",
+  "canvas 640x344 painted=105",
+  "canvas 640x344 painted=134",
+  "canvas 640x344 painted=829",
+  "canvas 640x344 painted=115",
+  "canvas 640x344 painted=45"
+ ],
+ "probe": [
+  "h1 opacity=1 vis=visible transform=none",
+  ".title opacity=1 vis=visible transform=none"
+ ],
+ "scrollHeight": 4646,
+ "bodyBg": "rgb(5, 7, 15)"
+}
+
+--- CDP console (0) ---
+(none)
+
+--- uncaught exceptions (0) ---
+(none)

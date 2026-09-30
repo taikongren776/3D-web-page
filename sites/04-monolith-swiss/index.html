@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONOLITH — 瑞士编辑式 3D 作品集</title>
+  <meta name="description" content="MONOLITH：以瑞士国际主义排版构建的 3D 个人作品集，含滚动驱动的立体石碑、拖拽索引画廊、网格系统与数据表格。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="site-monolith">
+  <div class="grid-guide" aria-hidden="true"></div>
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress"></div></div>
+
+  <!-- 3D 石碑舞台（仅首屏右侧） -->
+  <div class="stage-slot" aria-hidden="true">
+    <canvas id="stage"></canvas>
+    <div class="stage-caption" id="stageCaption">FIG. 01 — MONOLITH / 立方体序列 / 滚动驱动</div>
+  </div>
+
+  <header class="masthead" id="masthead">
+    <a class="logo" href="#top" data-cursor="TOP">MONOLITH<sup>®</sup></a>
+    <nav class="mast-nav" aria-label="主导航">
+      <a href="#index" data-cursor><span>01</span> 索引</a>
+      <a href="#practice" data-cursor><span>02</span> 方法</a>
+      <a href="#record" data-cursor><span>03</span> 记录</a>
+      <a href="#contact" data-cursor><span>04</span> 联系</a>
+    </nav>
+    <div class="mast-meta">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span id="clock">--:--</span>
+      <span class="sep">/</span>
+      <span>CN · SHANGHAI</span>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <p class="rule-top" data-reveal="none">独立设计工程师 · Independent Design Engineer · 自 2018</p>
+        <h1 class="display" id="heroTitle">把结构<br />做成一种<br />视觉语气</h1>
+        <div class="hero-cols">
+          <p data-reveal="up" data-reveal-delay="120">
+            我是 <strong>沈砚 / Shen Yan</strong>。做界面设计工程十年，相信排版是最便宜也最难的动效。
+            这套站点把三件事放在一起：<em>严格的网格</em>、<em>克制的三维</em>、<em>可核对的数字</em>。
+          </p>
+          <p data-reveal="up" data-reveal-delay="200">
+            右侧的石碑由滚动位置驱动：向下滚动，它会自转、拆解、再重组。
+            所有三维都是手写光栅器，无外部依赖。
+          </p>
+        </div>
+        <div class="hero-actions" data-reveal="up" data-reveal-delay="260">
+          <a class="btn btn-ink" href="#index" data-magnetic>
+            <span class="btn-num">01</span><span>浏览索引</span><span class="btn-arrow">→</span>
+          </a>
+          <a class="btn btn-line" href="#contact" data-magnetic>
+            <span class="btn-num">04</span><span>发起合作</span>
+          </a>
+        </div>
+      </div>
+
+      <aside class="hero-facts" data-reveal="right" data-reveal-delay="180">
+        <dl class="facts">
+          <div><dt>Years</dt><dd><span data-count="10">0</span></dd></div>
+          <div><dt>Projects</dt><dd><span data-count="128">0</span></dd></div>
+          <div><dt>Awards</dt><dd><span data-count="9">0</span></dd></div>
+          <div><dt>Team avg.</dt><dd><span data-count="4.9" data-decimals="1">0</span></dd></div>
+        </dl>
+        <p class="facts-note">数字每季度复核。客户名单可提供参考联系人。</p>
+      </aside>
+
+      <div class="scroll-cue" aria-hidden="true"><span>SCROLL</span><i></i></div>
+    </section>
+
+    <!-- ========================== TICKER ============================ -->
+    <section class="ticker-band" aria-hidden="true">
+      <div class="ticker" id="ticker1">
+        <div class="ticker-inner">
+          <span>APPLE</span><i>/</i><span>MUJI</span><i>/</i><span>AESOP</span><i>/</i>
+          <span>NIKE</span><i>/</i><span>SONY</span><i>/</i><span>IKEA</span><i>/</i>
+          <span>NINTENDO</span><i>/</i><span>PATAGONIA</span><i>/</i>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== INDEX ============================ -->
+    <section class="section" id="index">
+      <header class="sec-head">
+        <p class="sec-num" data-reveal="left">01</p>
+        <h2 class="sec-title" data-reveal="up">项目索引</h2>
+        <p class="sec-note" data-reveal="up" data-reveal-delay="100">悬停查看概要，点击展开完整条目。</p>
+      </header>
+
+      <div class="index-table" id="indexTable">
+        <div class="index-head">
+          <span>#</span><span>项目 / PROJECT</span><span>客户 / CLIENT</span><span>年份</span><span>角色</span><span>结果</span>
+        </div>
+      </div>
+
+      <div class="index-detail" id="indexDetail" aria-live="polite"></div>
+    </section>
+
+    <!-- ========================= GALLERY ============================ -->
+    <section class="section" id="gallery">
+      <header class="sec-head">
+        <p class="sec-num" data-reveal="left">—</p>
+        <h2 class="sec-title" data-reveal="up">拖拽查看</h2>
+        <p class="sec-note" data-reveal="up">横向轨道，支持拖拽与滚轮。每格都是程序化生成的图形，不是图片。</p>
+      </header>
+      <div class="rail" id="rail" tabindex="0" aria-label="横向画廊"></div>
+      <div class="rail-bar"><span id="railProgress"></span></div>
+    </section>
+
+    <!-- ========================== PRACTICE ========================== -->
+    <section class="section practice" id="practice">
+      <div class="practice-grid">
+        <div class="practice-intro">
+          <p class="sec-num" data-reveal="left">02</p>
+          <h2 class="sec-title" data-reveal="up">方法</h2>
+          <p data-reveal="up" data-reveal-delay="100">
+            我按“先建立约束，再追求表现”的顺序工作：网格、比例、字阶、动效预算先定好，
+            之后所有视觉决定都能被复述。设计文档写的是规则，不是截图。
+          </p>
+          <ol class="steps" data-reveal="up" data-reveal-delay="160">
+            <li><b>01</b><span>问题定义与内容审计</span><i>1–2 周</i></li>
+            <li><b>02</b><span>结构、网格与字阶</span><i>1 周</i></li>
+            <li><b>03</b><span>原型与动效语言</span><i>2–3 周</i></li>
+            <li><b>04</b><span>系统化交付与文档</span><i>1–2 周</i></li>
+          </ol>
+        </div>
+
+        <div class="practice-side">
+          <div class="manifesto" data-reveal="right">
+            <h3>四条原则</h3>
+            <ol>
+              <li><span>一</span> 先让内容可读，再让它好看。</li>
+              <li><span>二</span> 动效必须解释层级，否则删掉。</li>
+              <li><span>三</span> 每个视觉决定都要有可复述的理由。</li>
+              <li><span>四</span> 性能是设计的一部分，不是工程债务。</li>
+            </ol>
+          </div>
+          <div class="accordion fx-acc" data-reveal="right" data-reveal-delay="120">
+            <div class="fx-acc-item">
+              <button class="fx-acc-head">报价方式<span class="chev"></span></button>
+              <div class="fx-acc-body"><p>按阶段固定报价，不做小时计费。项目制最低 8 万，长期顾问按月。</p></div>
+            </div>
+            <div class="fx-acc-item">
+              <button class="fx-acc-head">协作工具<span class="chev"></span></button>
+              <div class="fx-acc-body"><p>Figma + 代码仓库双轨。设计令牌以代码为准，反向同步到设计文件。</p></div>
+            </div>
+            <div class="fx-acc-item">
+              <button class="fx-acc-head">交付内容<span class="chev"></span></button>
+              <div class="fx-acc-body"><p>可运行代码、组件清单、动效规范、可访问性报告、以及一次团队内训。</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== RECORD =========================== -->
+    <section class="section" id="record">
+      <header class="sec-head">
+        <p class="sec-num" data-reveal="left">03</p>
+        <h2 class="sec-title" data-reveal="up">记录</h2>
+      </header>
+
+      <div class="record-grid">
+        <div class="record-col" data-reveal="up">
+          <h4>奖项 / AWARDS</h4>
+          <ul class="record-list">
+            <li><span>2025</span> Awwwards — Site of the Day <b>Helios</b></li>
+            <li><span>2024</span> FWA — Mobile of the Day <b>Ghost HMI</b></li>
+            <li><span>2023</span> CSS Design Awards — Best UI <b>Archive</b></li>
+            <li><span>2022</span> Awwwards — Honorable Mention <b>Prism</b></li>
+          </ul>
+        </div>
+        <div class="record-col" data-reveal="up" data-reveal-delay="90">
+          <h4>演讲 / TALKS</h4>
+          <ul class="record-list">
+            <li><span>2025</span> CSSConf China — 《手写一个 3D 引擎》</li>
+            <li><span>2024</span> GMTC — 《动效预算》</li>
+            <li><span>2023</span> 掘金开发者大会 — 《排版即动效》</li>
+            <li><span>2022</span> Design Matters 上海 — 圆桌</li>
+          </ul>
+        </div>
+        <div class="record-col" data-reveal="up" data-reveal-delay="180">
+          <h4>写作 / WRITING</h4>
+          <ul class="record-list">
+            <li><span>2025</span> 《画家算法还够用吗》 <b>14k 阅读</b></li>
+            <li><span>2024</span> 《玻璃拟态的性能代价》</li>
+            <li><span>2023</span> 《无依赖动效库设计》</li>
+            <li><span>2022</span> 《中文排版的字距实践》</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== CONTACT =========================== -->
+    <section class="section contact" id="contact">
+      <div class="contact-grid">
+        <div class="contact-main" data-reveal="up">
+          <p class="sec-num">04</p>
+          <h2 class="sec-title big">下一块石碑<br />由你决定形状</h2>
+          <p class="sec-note">2025 年 11 月起开放两个项目档期。请附上目标、时间与预算区间。</p>
+          <form class="enquiry" id="enquiryForm">
+            <label class="fld"><span>姓名</span><input name="name" required placeholder="你的名字"></label>
+            <label class="fld"><span>邮箱</span><input type="email" name="email" required placeholder="you@company.com"></label>
+            <label class="fld"><span>预算</span>
+              <select name="budget">
+                <option>¥ 8–15 万</option>
+                <option>¥ 15–40 万</option>
+                <option>¥ 40 万以上</option>
+              </select>
+            </label>
+            <label class="fld wide"><span>目标</span><textarea name="goal" rows="3" placeholder="想解决什么问题？"></textarea></label>
+            <button class="btn btn-ink" type="submit" data-cursor="SEND"><span class="btn-num">→</span> 发送询问</button>
+          </form>
+        </div>
+        <aside class="contact-side" data-reveal="right">
+          <dl class="contact-list">
+            <div><dt>Email</dt><dd><a href="mailto:studio@monolith.design" data-cursor>studio@monolith.design</a></dd></div>
+            <div><dt>Signal</dt><dd>+86 138 0000 0000</dd></div>
+            <div><dt>Address</dt><dd>上海市黄浦区江西中路 181 号 5F</dd></div>
+            <div><dt>Hours</dt><dd>周一至周五 · 10:00–19:00 (UTC+8)</dd></div>
+          </dl>
+          <div class="press">
+            <h4>引用 / PRESS</h4>
+            <p>“把瑞士网格带进实时三维的少数人之一。”<br><b>— Communication Arts</b></p>
+          </div>
+          <div class="swatches" data-cursor="调色板">
+            <span style="--c:#111111"></span><span style="--c:#e8e4dc"></span>
+            <span style="--c:#ff3b2f"></span><span style="--c:#3355ff"></span><span style="--c:#00a37a"></span>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="foot">
+        <span>© 2025 MONOLITH® — 沈砚设计工作室</span>
+        <span class="foot-mid">Set in Helvetica-style grotesk · 8pt baseline grid · Built without frameworks</span>
+        <span class="foot-right"><a href="#top" data-cursor>TOP ↑</a></span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="../../vendor/dse.js"></script>
+  <script src="../../vendor/fx.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>

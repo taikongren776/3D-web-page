@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KINETIC — 粒子场与液态金属 3D 个人站点</title>
+  <meta name="description" content="KINETIC：以手写 3D 引擎驱动的粒子场、液态金属球与星座网络，含实时参数面板与交互实验。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="site-kinetic">
+  <!-- 全屏 3D 舞台 -->
+  <div class="stage-wrap" aria-hidden="true">
+    <!-- aurora 是第一层：它在 DOM 里必须排在 canvas 之前，
+         否则这个带模糊的渐变会把整块 3D canvas 压成一片漆黑 -->
+    <div class="aurora"></div>
+    <canvas id="stage"></canvas>
+    <canvas id="trail"></canvas>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+  </div>
+
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress"></div></div>
+  <nav class="fx-rail rail-right" aria-label="章节导航"></nav>
+
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#hero" data-cursor="TOP">
+      <span class="brand-orb" aria-hidden="true"></span> KINETIC<sup>◇</sup>
+    </a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="#field" data-cursor>粒子场</a>
+      <a href="#network" data-cursor>网络</a>
+      <a href="#metric" data-cursor>指标</a>
+      <a href="#lab" data-cursor>调参</a>
+      <a href="#contact" data-cursor>联系</a>
+    </nav>
+    <div class="topbar-right">
+      <span class="hud" id="hudFps">--</span>
+      <span class="hud hud-dim" id="hudTris">--</span>
+      <button class="btn btn-mini" id="motionToggle" aria-pressed="true" data-cursor="冻结动效">⏸</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" id="hero">
+      <p class="kicker" data-reveal="none"><span class="dot"></span> PARTICLE SYSTEMS · LIQUID METAL · REAL TIME</p>
+      <h1 class="hero-title" id="heroTitle">运动是<br />信息的形状</h1>
+      <p class="hero-sub" data-reveal="up" data-reveal-delay="140">
+        我是 <b>ARIA / 阿芮</b>，专注于运动图形与实时可视化的设计工程师。
+        你看到的粒子、金属球与星座网络，全部由我手写的 3D 光栅器在 Canvas 上逐帧计算——
+        <span class="grad">没有 three.js、没有 WebGL、没有依赖</span>。
+      </p>
+      <p class="hero-typed"><span class="prompt">$</span> <span id="typed"></span></p>
+
+      <div class="hero-cta" data-reveal="up" data-reveal-delay="220">
+        <a class="btn btn-primary" href="#lab" data-magnetic data-cursor="开始调参">
+          <span>进入参数面板</span><span class="arrow">→</span>
+        </a>
+        <button class="btn btn-glass" id="forceBtn" data-magnetic data-cursor="施加冲击">⚡ 施加一次冲击</button>
+        <button class="btn btn-quiet" id="themeBtn" data-cursor="换配色">◐ 换配色</button>
+      </div>
+
+      <div class="hero-meters" data-reveal="up" data-reveal-delay="300">
+        <div class="meter">
+          <span class="meter-label">PARTICLES</span>
+          <b id="mParticles">0</b>
+        </div>
+        <div class="meter">
+          <span class="meter-label">DRAW CALLS</span>
+          <b id="mDraws">0</b>
+        </div>
+        <div class="meter">
+          <span class="meter-label">FRAME</span>
+          <b id="mFrame">0 ms</b>
+        </div>
+        <div class="meter">
+          <span class="meter-label">BLOB AMP</span>
+          <b id="mAmp">0.16</b>
+        </div>
+      </div>
+
+      <div class="scroll-cue" aria-hidden="true"><i></i><span>SCROLL</span></div>
+    </section>
+
+    <!-- =========================== FIELD ============================ -->
+    <section class="section" id="field">
+      <header class="sec-head">
+        <p class="sec-kicker" data-reveal="left">01 — PARTICLE FIELD</p>
+        <h2 class="sec-title" data-reveal="up">把光标变成一种力</h2>
+        <p class="sec-lead" data-reveal="up" data-reveal-delay="100">
+          粒子不是装饰：它们有速度、阻尼和受力半径。移动鼠标扰动它们，点击画布把它们炸开。
+        </p>
+      </header>
+
+      <div class="field-grid">
+        <div class="card glass" data-tilt data-tilt-max="8" data-reveal="up">
+          <h3>受力模型</h3>
+          <p>每帧对每个粒子：库仑斥力 + 速度阻尼 + 边界回弹。为了保持 60fps，
+            受力计算在扁平数组上做，且只对半径内的粒子生效。</p>
+          <ul class="bullets">
+            <li>粒子数 <b id="bParticles">640</b></li>
+            <li>受力半径 <b>1.4 单位</b></li>
+            <li>阻尼系数 <b>0.94</b></li>
+          </ul>
+        </div>
+        <div class="card glass" data-tilt data-tilt-max="8" data-reveal="up" data-reveal-delay="90">
+          <h3>三层叠加</h3>
+          <p>主体粒子场、光标拖尾（2D）、以及背景极光幕布。三者速度不同，
+            因此视差来自运动本身，而不是假的位移。</p>
+          <div class="stack-vis">
+            <span style="--h:62%">3D 粒子</span>
+            <span style="--h:38%">2D 拖尾</span>
+            <span style="--h:22%">极光幕</span>
+          </div>
+        </div>
+        <div class="card glass" data-tilt data-tilt-max="8" data-reveal="up" data-reveal-delay="180">
+          <h3>性能取舍</h3>
+          <p>移动端粒子数自动减半、分辨率降到 0.7；当帧时间超过 22ms 会动态降低上限，
+            恢复后缓慢回升。</p>
+          <div class="spark" id="frameSpark"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== NETWORK =========================== -->
+    <section class="section" id="network">
+      <header class="sec-head">
+        <p class="sec-kicker" data-reveal="left">02 — CONSTELLATION</p>
+        <h2 class="sec-title" data-reveal="up">关系比节点更重要</h2>
+        <p class="sec-lead" data-reveal="up" data-reveal-delay="100">
+          26 个节点、由管线连接的近邻图。滚动到这里时，相机会自动对焦到网络上。
+        </p>
+      </header>
+
+      <div class="net-grid">
+        <div class="net-list glass" data-reveal="up" id="netList"></div>
+        <div class="net-note glass" data-reveal="up" data-reveal-delay="120">
+          <h3>引擎做了什么</h3>
+          <p><code>FX.scene.constellation()</code> 先随机布点在球面上，再为每个节点找最近的 N 个邻居，
+            用 <code>geom.tube()</code> 沿直线生成细管——这样连线同样参与深度排序，不会浮在物体前面。</p>
+          <p class="muted">节点用八面体 + 自发光材质，配合 bloom 通道产生霓虹感。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== METRIC ============================ -->
+    <section class="section" id="metric">
+      <header class="sec-head">
+        <p class="sec-kicker" data-reveal="left">03 — TELEMETRY</p>
+        <h2 class="sec-title" data-reveal="up">可核对的数字</h2>
+      </header>
+
+      <div class="metric-grid">
+        <div class="metric-card glass" data-reveal="up">
+          <div class="ring" data-ring="92"><span><b data-count="92">0</b>%</span></div>
+          <h4>动效覆盖率</h4>
+          <p>42 个组件中，38 个带入场/交互动效，其余为静态排版。</p>
+        </div>
+        <div class="metric-card glass" data-reveal="up" data-reveal-delay="80">
+          <div class="ring" data-ring="76"><span><b data-count="76">0</b>%</span></div>
+          <h4>GPU-free 渲染</h4>
+          <p>所有 3D 由 Canvas2D 三角光栅器完成，兼容无 WebGL 环境。</p>
+        </div>
+        <div class="metric-card glass" data-reveal="up" data-reveal-delay="160">
+          <div class="ring" data-ring="100"><span><b data-count="100">0</b>%</span></div>
+          <h4>键盘可达</h4>
+          <p>导航、终端、调参面板全部可用键盘操作，焦点可见。</p>
+        </div>
+        <div class="metric-card glass" data-reveal="up" data-reveal-delay="240">
+          <div class="ring" data-ring="64"><span><b data-count="64">0</b>%</span></div>
+          <h4>体积节省</h4>
+          <p>相比引入 three.js + GSAP，同功能下体积减少约 64%。</p>
+        </div>
+      </div>
+
+      <div class="ledger glass" data-reveal="up" data-reveal-delay="120">
+        <div class="ledger-head"><span>模块</span><span>行数</span><span>字节</span><span>职责</span></div>
+        <div id="ledgerRows"></div>
+        <p class="ledger-note">数据来自构建脚本实测，非估算。</p>
+      </div>
+    </section>
+
+    <!-- ============================ LAB ============================= -->
+    <section class="section" id="lab">
+      <header class="sec-head">
+        <p class="sec-kicker" data-reveal="left">04 — CONTROL ROOM</p>
+        <h2 class="sec-title" data-reveal="up">实时参数面板</h2>
+        <p class="sec-lead" data-reveal="up">每个滑块都直连渲染循环，拖动即刻生效。</p>
+      </header>
+
+      <div class="lab-grid">
+        <div class="panel glass" data-reveal="up">
+          <label class="ctrl">
+            <span>粒子数量 <b id="vCount">640</b></span>
+            <input type="range" id="rCount" min="0" max="2400" step="40" value="640">
+          </label>
+          <label class="ctrl">
+            <span>金属球形变 <b id="vAmp">0.16</b></span>
+            <input type="range" id="rAmp" min="0" max="0.45" step="0.01" value="0.16">
+          </label>
+          <label class="ctrl">
+            <span>形变频率 <b id="vFreq">1.60</b></span>
+            <input type="range" id="rFreq" min="0.4" max="4" step="0.1" value="1.6">
+          </label>
+          <label class="ctrl">
+            <span>泛光 <b id="vBloom">0.65</b></span>
+            <input type="range" id="rBloom" min="0" max="1" step="0.05" value="0.65">
+          </label>
+          <label class="ctrl">
+            <span>雾深度 <b id="vFog">0.70</b></span>
+            <input type="range" id="rFog" min="0" max="1" step="0.05" value="0.7">
+          </label>
+          <label class="ctrl">
+            <span>色相偏移 <b id="vHue">0</b></span>
+            <input type="range" id="rHue" min="-180" max="180" step="5" value="0">
+          </label>
+          <div class="ctrl-actions">
+            <button class="btn btn-quiet" id="resetLab" data-cursor="重置">重置</button>
+            <button class="btn btn-glass" id="spinToggle" data-cursor="自转">自转：开</button>
+          </div>
+        </div>
+
+        <div class="panel glass code-panel" data-reveal="up" data-reveal-delay="120">
+          <div class="code-head"><span>live-params.json</span><span class="code-dot"></span></div>
+          <pre class="code" id="codeOut"></pre>
+          <p class="muted tiny">这是当前参数的实时序列化结果。拖动滑块时同步更新。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== CONTACT ========================== -->
+    <section class="section" id="contact">
+      <div class="contact glass" data-reveal="scale">
+        <p class="sec-kicker">05 — SIGNAL</p>
+        <h2 class="sec-title big">想让界面动起来？<br />我们来聊聊。</h2>
+        <p class="sec-lead">接受动效系统、实时可视化与设计工程方向的合作。</p>
+        <div class="contact-actions">
+          <a class="btn btn-primary" href="mailto:aria@kinetic.studio" data-magnetic data-cursor="发邮件">
+            <span>aria@kinetic.studio</span><span class="arrow">→</span>
+          </a>
+          <button class="btn btn-glass" id="copyMail" data-cursor="复制">复制邮箱</button>
+          <button class="btn btn-quiet" id="toastBtn" data-cursor="Toast">测试 Toast</button>
+        </div>
+      </div>
+      <footer class="foot">
+        <span>© 2025 ARIA · KINETIC</span>
+        <span class="foot-hint">手写光栅器 · 无依赖 · 离线可用</span>
+        <span class="foot-links"><a href="#hero" data-cursor>TOP ↑</a></span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="../../vendor/dse.js"></script>
+  <script src="../../vendor/fx.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>

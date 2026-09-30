@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIAMI_1997 — 蒸汽波桌面 OS 作品集</title>
+  <meta name="description" content="MIAMI_1997：把个人网站做成 1997 年的桌面操作系统，含可拖动窗口、合成器音乐播放器、留言板与 3D 蒸汽波地平线。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="site-miami">
+  <!-- 3D 蒸汽波地平线 -->
+  <div class="world" aria-hidden="true">
+    <canvas id="stage"></canvas>
+    <div class="sun-glow"></div>
+    <div class="scanlines"></div>
+    <div class="vhs-tracking" id="vhsTrack"></div>
+    <div class="crt-mask"></div>
+  </div>
+
+  <!-- 开机画面 -->
+  <div class="boot" id="boot">
+    <div class="boot-box">
+      <div class="boot-logo"><span>MIAMI</span><i>_</i><b>1997</b></div>
+      <p class="boot-sub">PERSONAL WORKSTATION · BIOS v1.997</p>
+      <pre class="boot-mem" id="bootMem"></pre>
+      <div class="boot-bar"><span id="bootBar"></span></div>
+      <p class="boot-hint">画面为演示用软件渲染，无需显卡加速。</p>
+    </div>
+  </div>
+
+  <!-- 滚动进度 -->
+  <div class="progress-track"><div class="progress-bar" id="progress"></div></div>
+
+  <!-- ======================= 桌面 ======================= -->
+  <main class="desktop" id="desktop">
+    <div class="desktop-icons" id="desktopIcons"></div>
+
+    <!-- 窗口：关于我 -->
+    <section class="win" data-win="about" id="win-about">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">▣</i> ABOUT_ME.EXE</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body">
+        <div class="about-layout">
+          <div class="avatar-box">
+            <div class="avatar-pixel" aria-hidden="true"></div>
+            <p class="avatar-cap">me_1997.bmp</p>
+          </div>
+          <div class="about-text">
+            <h1 class="chrome" data-text="REI NAKAMURA">REI NAKAMURA</h1>
+            <p class="role-line"><span class="blink">▮</span> CREATIVE DIRECTOR / FRONT-END · NEO-TOKYO → 上海</p>
+            <p class="hero-desc">
+              你好，我是 <b>Rei</b>。白天写界面，晚上采样 80 年代的和弦。
+              这个「操作系统」是我 2025 年的个人站点：<b>手写 3D 光栅器</b>渲染的地平线 +
+              <b>可拖拽窗口</b>的 Y2K 界面 + <b>实时合成器</b>。没有 three.js，没有框架。
+            </p>
+            <dl class="readouts">
+              <div><dt>ALBUMS</dt><dd><span data-count="14">0</span></dd></div>
+              <div><dt>SITES</dt><dd><span data-count="73" data-suffix="+">0</span></dd></div>
+              <div><dt>BPM</dt><dd><span data-count="112">0</span></dd></div>
+              <div><dt>TRI/FRAME</dt><dd><span id="triReadout">--</span></dd></div>
+            </dl>
+            <div class="btn-row">
+              <button class="btn btn-hot" data-open-win="projects" data-magnetic>打开 PROJECTS</button>
+              <button class="btn btn-ghost" data-open-win="player" data-magnetic>播放 ▶</button>
+              <button class="btn btn-ghost" data-open-win="guest" data-magnetic>留言板</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 窗口：项目 -->
+    <section class="win" data-win="projects" id="win-projects">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">▤</i> PROJECTS.DIR</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body">
+        <div class="file-toolbar">
+          <span>路径: C:\REI\WORK\</span>
+          <span class="file-count" id="fileCount"></span>
+        </div>
+        <ul class="file-list" id="fileList"></ul>
+        <div class="proj-preview" id="projPreview">
+          <p class="dim">← 选中一个文件查看详情</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 窗口：合成器播放器 -->
+    <section class="win" data-win="player" id="win-player">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">♫</i> SYNTH_PLAYER.EXE</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body">
+        <div class="eq" id="eq"></div>
+        <div class="player-row">
+          <button class="btn btn-hot" id="playBtn" data-cursor="PLAY">▶ 播放</button>
+          <span class="track-name" id="trackName">no track loaded</span>
+        </div>
+        <div class="player-row">
+          <label class="slider"><span>节奏</span><input type="range" id="tempo" min="70" max="150" value="112"><b id="tempoVal">112</b></label>
+        </div>
+        <div class="player-row">
+          <label class="slider"><span>低通</span><input type="range" id="cutoff" min="300" max="6000" value="2200"><b id="cutoffVal">2200</b></label>
+        </div>
+        <div class="player-row">
+          <label class="slider"><span>混响</span><input type="range" id="reverb" min="0" max="100" value="35"><b id="revVal">35</b></label>
+        </div>
+        <ul class="track-list" id="trackList"></ul>
+        <p class="dim tiny">全部声音由 Web Audio 实时合成，没有音频文件。</p>
+      </div>
+    </section>
+
+    <!-- 窗口：留言板 -->
+    <section class="win" data-win="guest" id="win-guest">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">✎</i> GUESTBOOK.CGI</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body">
+        <form class="guest-form" id="guestForm">
+          <input name="name" placeholder="你的名字" required maxlength="18">
+          <input name="msg" placeholder="留一句话…" required maxlength="70">
+          <button class="btn btn-hot" type="submit">签名</button>
+        </form>
+        <ul class="guest-list" id="guestList"></ul>
+      </div>
+    </section>
+
+    <!-- 窗口：技能 -->
+    <section class="win" data-win="skills" id="win-skills">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">▥</i> SKILLS.TXT</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body">
+        <div class="skill-grid" id="skillGrid"></div>
+        <div class="badge-row">
+          <span class="badge">Netscape NOW!</span>
+          <span class="badge">Best viewed 1024×768</span>
+          <span class="badge">Y2K READY</span>
+          <span class="badge">Webring member #0042</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 窗口：网页环 -->
+    <section class="win" data-win="ring" id="win-ring">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">◎</i> WEBRING.HTM</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body center">
+        <div class="ring-wheel" id="ringWheel">
+          <span class="ring-node is-active" data-site="YOU ARE HERE">MIAMI_1997</span>
+        </div>
+        <p class="dim">拖动转盘，浏览推荐站点（演示数据）。</p>
+        <div class="ring-nav">
+          <button class="btn btn-ghost" id="ringPrev">◀ PREV</button>
+          <button class="btn btn-ghost" id="ringRandom">RANDOM</button>
+          <button class="btn btn-ghost" id="ringNext">NEXT ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 窗口：联系 -->
+    <section class="win" data-win="contact" id="win-contact">
+      <header class="win-bar">
+        <span class="win-title"><i class="ico">✉</i> CONTACT.TXT</span>
+        <span class="win-btns">
+          <button data-win-min aria-label="最小化">–</button>
+          <button data-win-close aria-label="关闭">×</button>
+        </span>
+      </header>
+      <div class="win-body">
+        <pre class="ascii">
+  ┌───────────────────────────────┐
+  │  EMAIL   rei@miami1997.net    │
+  │  ICQ     1987-1997            │
+  │  BBS     bbs.miami1997.net    │
+  │  STATUS  OPEN FOR WORK        │
+  └───────────────────────────────┘</pre>
+        <div class="btn-row">
+          <button class="btn btn-hot" id="copyMail" data-magnetic>复制邮箱</button>
+          <a class="btn btn-ghost" href="#win-ring" data-open-win="ring">看看 Webring</a>
+        </div>
+        <p class="dim tiny">本页面所有表单均为本地演示，不会发送任何数据。</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================= 任务栏 ======================= -->
+  <footer class="taskbar" id="taskbar">
+    <button class="start" id="startBtn">◈ 开始</button>
+    <div class="task-items" id="taskItems"></div>
+    <div class="tray">
+      <span class="tray-fps" id="trayFps">--fps</span>
+      <span class="tray-sep">|</span>
+      <button class="tray-vol" id="volBtn" aria-label="音量">♪</button>
+      <span class="tray-clock" id="trayClock">--:--</span>
+    </div>
+    <div class="start-menu" id="startMenu"></div>
+  </footer>
+
+  <script src="../../vendor/dse.js"></script>
+  <script src="../../vendor/fx.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>

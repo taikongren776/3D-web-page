@@ -1,0 +1,28 @@
+URL: http://127.0.0.1:5178/sites/05-kinetic-particle/
+runtime: loaded=true  wait=4000ms  scroll=0
+
+--- page diagnostics ---
+{
+ "loaded": "complete",
+ "rafCount": 912,
+ "errors": [],
+ "errorCount": 0,
+ "revealTotal": 28,
+ "revealActivated": 4,
+ "canvases": [
+  "stage 1418x802 painted=10",
+  "trail 1418x802 painted=0"
+ ],
+ "probe": [
+  "h1 opacity=1 vis=visible transform=none",
+  ".hero-title opacity=1 vis=visible transform=none"
+ ],
+ "scrollHeight": 4656,
+ "bodyBg": "rgb(4, 6, 13)"
+}
+
+--- CDP console (0) ---
+(none)
+
+--- uncaught exceptions (0) ---
+(none)

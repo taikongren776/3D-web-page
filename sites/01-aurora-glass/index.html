@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURORA — 极光玻璃 · 3D 个人作品集</title>
+  <meta name="description" content="AURORA：以玻璃拟态与极光渐变构建的 3D 个人网站，软件渲染 3D 水晶群、磁性按钮、倾斜卡片与滚动编排。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="site-aurora">
+  <!-- 背景层：2D 极光幕布 + 3D 水晶场景 -->
+  <div class="bg-stack" aria-hidden="true">
+    <div class="aurora-veil"></div>
+    <canvas class="bg2d" id="bg2d"></canvas>
+    <canvas class="bg3d" id="stage"></canvas>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- 滚动进度 -->
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress"></div></div>
+
+  <!-- 侧边导航点 -->
+  <nav class="fx-rail rail-left" aria-label="章节导航"></nav>
+
+  <!-- 顶栏 -->
+  <header class="topbar glass" id="topbar">
+    <a class="brand" href="#hero" data-cursor="回到顶部">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26">
+          <defs>
+            <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#7cf0ff" />
+              <stop offset="0.5" stop-color="#c9a7ff" />
+              <stop offset="1" stop-color="#ffa8d8" />
+            </linearGradient>
+          </defs>
+          <path d="M16 2 L28 12 L16 30 L4 12 Z" fill="url(#bg1)" opacity=".9" />
+          <path d="M16 2 L16 30 M4 12 L28 12" stroke="#0a0d1a" stroke-width="1.1" opacity=".55" />
+        </svg>
+      </span>
+      <span class="brand-text">AURORA<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="#work" data-cursor>作品</a>
+      <a href="#stack" data-cursor>组件库</a>
+      <a href="#about" data-cursor>关于</a>
+      <a href="#lab" data-cursor>实验室</a>
+    </nav>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" id="soundToggle" data-cursor="声音" aria-pressed="false">
+        <span class="icon-sound" aria-hidden="true"></span> 音效
+      </button>
+      <button class="btn btn-primary btn-sm" data-modal-open data-cursor="联系我">联系我</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" id="hero">
+      <div class="hero-inner">
+        <p class="eyebrow glass-pill" data-reveal="none" data-reveal-delay="120">
+          <span class="pulse-dot"></span> 可用 · 2025 Q3 起接受新项目
+        </p>
+        <h1 class="hero-title" id="heroTitle">极光之下<br />构筑可触摸的界面</h1>
+        <p class="hero-sub" data-reveal="up" data-reveal-delay="240">
+          我是 <strong>林昭 / Zhao Lin</strong>，一名把三维空间感带进产品界面的
+          <span class="hl">创意前端工程师</span>。这套站点本身就是一个实验：
+          纯 Canvas 手写 3D 引擎、玻璃拟态材质、以及 40+ 可复用动效组件。
+        </p>
+        <div class="hero-cta" data-reveal="up" data-reveal-delay="320">
+          <a class="btn btn-primary" href="#work" data-magnetic data-cursor="查看作品">
+            <span class="btn-label">浏览作品</span><span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="btn btn-glass" href="#stack" data-magnetic data-cursor="组件清单">
+            <span class="btn-label">组件清单</span>
+          </a>
+          <button class="btn btn-ghost" id="toastDemo" data-cursor="试一下">触发一个 Toast</button>
+        </div>
+
+        <dl class="hero-stats" data-reveal="up" data-reveal-delay="420">
+          <div class="stat">
+            <dt>交付项目</dt>
+            <dd><span data-count="86" data-suffix="+">0</span></dd>
+          </div>
+          <div class="stat">
+            <dt>动效组件</dt>
+            <dd><span data-count="42">0</span></dd>
+          </div>
+          <div class="stat">
+            <dt>首屏帧率</dt>
+            <dd><span data-count="60" data-suffix=" fps">0</span></dd>
+          </div>
+          <div class="stat">
+            <dt>从业年限</dt>
+            <dd><span data-count="7" data-suffix=" 年">0</span></dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <span class="scroll-line"></span> 向下滚动
+      </div>
+    </section>
+
+    <!-- ========================== MARQUEE =========================== -->
+    <section class="marquee-band" aria-hidden="true">
+      <div class="marquee" id="marquee1">
+        <div class="marquee-inner">
+          <span>GLASSMORPHISM</span><i>◆</i><span>WEBGL-FREE 3D</span><i>◆</i>
+          <span>MOTION SYSTEM</span><i>◆</i><span>DESIGN ENGINEERING</span><i>◆</i>
+          <span>CANVAS RENDERER</span><i>◆</i><span>PROCEDURAL TEXTURE</span><i>◆</i>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ WORK =========================== -->
+    <section class="section" id="work">
+      <header class="section-head">
+        <p class="section-kicker" data-reveal="left">01 — 精选作品</p>
+        <h2 class="section-title" data-reveal="up">把空间感<br />还给平面设计</h2>
+        <p class="section-lead" data-reveal="up" data-reveal-delay="120">
+          每张卡片都是真实的三维层叠：指针会改变透视、光斑会跟随，边框来自 3D 变换而非阴影。
+          把鼠标移到卡片上试试。
+        </p>
+      </header>
+
+      <div class="card-grid">
+        <article class="tilt-wrap" data-tilt data-tilt-max="12" data-reveal="up" data-cursor="查看案例">
+          <div class="tilt-panel glass-card">
+            <div class="card-visual v1"><span class="orb"></span><span class="ring3d"></span></div>
+            <div class="card-body">
+              <h3>Nebula OS · 三维控制台</h3>
+              <p>为一家边缘计算公司设计的运维控制台，用深度线索替代层级菜单，操作路径缩短 38%。</p>
+              <ul class="taglist">
+                <li>设计系统</li><li>Three.js</li><li>动效规范</li>
+              </ul>
+            </div>
+            <footer class="card-foot"><span>2025</span><span class="card-more">案例详情 →</span></footer>
+          </div>
+        </article>
+
+        <article class="tilt-wrap" data-tilt data-tilt-max="14" data-reveal="up" data-reveal-delay="90" data-cursor="查看案例">
+          <div class="tilt-panel glass-card">
+            <div class="card-visual v2"><span class="orb"></span><span class="ring3d"></span></div>
+            <div class="card-body">
+              <h3>Prism · 数据叙事平台</h3>
+              <p>把枯燥的季度报表变成可旋转的晶体森林，演示转化率提升 2.4 倍。</p>
+              <ul class="taglist">
+                <li>数据可视化</li><li>Canvas</li><li>叙事设计</li>
+              </ul>
+            </div>
+            <footer class="card-foot"><span>2024</span><span class="card-more">案例详情 →</span></footer>
+          </div>
+        </article>
+
+        <article class="tilt-wrap" data-tilt data-tilt-max="12" data-reveal="up" data-reveal-delay="180" data-cursor="查看案例">
+          <div class="tilt-panel glass-card">
+            <div class="card-visual v3"><span class="orb"></span><span class="ring3d"></span></div>
+            <div class="card-body">
+              <h3>Halo · 品牌官网重构</h3>
+              <p>零依赖的滚动编排系统，Lighthouse 性能 99 分的同时保留电影级转场。</p>
+              <ul class="taglist">
+                <li>性能优化</li><li>GSAP-free</li><li>滚动编排</li>
+              </ul>
+            </div>
+            <footer class="card-foot"><span>2024</span><span class="card-more">案例详情 →</span></footer>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================ STACK ========================== -->
+    <section class="section" id="stack">
+      <header class="section-head">
+        <p class="section-kicker" data-reveal="left">02 — 组件库</p>
+        <h2 class="section-title" data-reveal="up">一套可复用的<br />动效组件体系</h2>
+      </header>
+
+      <div class="tabs glass" data-reveal="up" id="stackTabs">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn" data-tab="motion" role="tab">动效</button>
+          <button class="tab-btn" data-tab="surface" role="tab">材质</button>
+          <button class="tab-btn" data-tab="input" role="tab">交互</button>
+          <button class="tab-btn" data-tab="data" role="tab">数据</button>
+        </div>
+        <div class="tab-panels">
+          <div class="tab-panel" data-panel="motion">
+            <ul class="comp-list">
+              <li><b>textIn</b><span>字符级入场，逐字 28ms 错峰</span></li>
+              <li><b>reveal</b><span>基于 IntersectionObserver 的九种入场姿态</span></li>
+              <li><b>parallax</b><span>data-speed 驱动的多层视差</span></li>
+              <li><b>marquee</b><span>无缝循环跑马灯，支持双向</span></li>
+              <li><b>counter</b><span>缓动数字滚动，支持千分位</span></li>
+              <li><b>scramble</b><span>字符解码式标题切换</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="surface">
+            <ul class="comp-list">
+              <li><b>glass()</b><span>带边缘光的玻璃材质，掠射角自动增亮</span></li>
+              <li><b>crystalGeom()</b><span>程序化水晶，逐面着色</span></li>
+              <li><b>tex.*</b><span>13 种程序化贴图：网格/砖块/细胞/噪点…</span></li>
+              <li><b>blobGeom()</b><span>可实时变形的液态金属球</span></li>
+              <li><b>Backdrop</b><span>8 种 2D 画布背景：极光/矩阵/散景…</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="input">
+            <ul class="comp-list">
+              <li><b>magnetic</b><span>磁性吸附按钮，带弹性回位</span></li>
+              <li><b>tilt</b><span>三维倾斜卡片 + 高光sheen</span></li>
+              <li><b>cursor</b><span>双层自定义光标与状态标签</span></li>
+              <li><b>ripple</b><span>水波纹点击反馈</span></li>
+              <li><b>dragRail</b><span>拖拽/滚轮横向轨道</span></li>
+            </ul>
+          </div>
+          <div class="tab-panel" data-panel="data">
+            <ul class="comp-list">
+              <li><b>Scene</b><span>画家算法三角光栅器，实时排序</span></li>
+              <li><b>Particles</b><span>GPU-free 粒子场，支持卷曲与闪烁</span></li>
+              <li><b>Controls</b><span>惯性轨道相机 + 指针视差</span></li>
+              <li><b>Sprite</b><span>3D 定位的公告板贴图</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento">
+        <div class="bento-item glass" data-reveal="up" data-cursor="拖拽我">
+          <h4>拖拽 / 滚轮</h4>
+          <p>背景中的水晶场景由真实相机控制驱动，可以直接在画布上拖动旋转。</p>
+          <div class="bento-meter"><span style="width:82%"></span></div>
+        </div>
+        <div class="bento-item glass" data-reveal="up" data-reveal-delay="80">
+          <h4>性能预算</h4>
+          <p>每帧三角形预算 12k，自动降级分辨率，移动端锁定 30fps。</p>
+          <div class="bento-meter"><span style="width:64%"></span></div>
+        </div>
+        <div class="bento-item glass span2" data-reveal="up" data-reveal-delay="160">
+          <h4>零依赖</h4>
+          <p>没有 three.js、没有 GSAP、没有构建工具。整个站点由三个文件构成：
+            <code>vendor/dse.js</code>（3D 引擎）、<code>vendor/fx.js</code>（组件库）、以及每个站点自己的脚本。
+          </p>
+          <div class="code-strip">
+            <span>&lt;canvas id="stage"&gt;</span>
+            <span>scene.add(hero, shards, dust)</span>
+            <span>controls.update(dt, t)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ ABOUT ========================== -->
+    <section class="section" id="about">
+      <div class="about-grid">
+        <div class="about-copy">
+          <p class="section-kicker" data-reveal="left">03 — 关于</p>
+          <h2 class="section-title" data-reveal="up">工程的克制<br />与视觉的野心</h2>
+          <p data-reveal="up" data-reveal-delay="100">
+            我在 2018 年从工业设计转向前端，之后一直在两个极端之间工作：
+            一边是毫秒级的性能预算，另一边是让人愿意停留三秒的视觉惊喜。
+            这套 3D 引擎就是这种拉锯的产物——它只有 60KB，却足够渲染出你正在看的这一切。
+          </p>
+          <div class="accordion fx-acc" data-reveal="up" data-reveal-delay="160">
+            <div class="fx-acc-item">
+              <button class="fx-acc-head">为什么不用 three.js？<span class="chev"></span></button>
+              <div class="fx-acc-body">
+                <p>因为想验证一个问题：如果只允许画 2D 三角形，界面还能不能有空间感？答案是能，
+                  而且排序算法让半透明材质反而更自然。代价是复杂模型需要预烘焙几何。</p>
+              </div>
+            </div>
+            <div class="fx-acc-item">
+              <button class="fx-acc-head">动效如何做到不眩晕？<span class="chev"></span></button>
+              <div class="fx-acc-body">
+                <p>三重保险：所有位移不超过 48px、所有旋转不超过 14°、并且完整支持
+                  <code>prefers-reduced-motion</code>。动效只用来解释层级，不用来炫技。</p>
+              </div>
+            </div>
+            <div class="fx-acc-item">
+              <button class="fx-acc-head">可以复用到我的项目吗？<span class="chev"></span></button>
+              <div class="fx-acc-body">
+                <p>可以。<code>vendor/</code> 下的两个文件是 MIT 许可的，直接复制即可，
+                  也不要求你使用同样的构建流程。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="about-side">
+          <div class="profile glass" data-reveal="right">
+            <div class="avatar" aria-hidden="true"><span>ZL</span></div>
+            <h3>林昭 / Zhao Lin</h3>
+            <p class="role">Creative Front-end Engineer</p>
+            <p class="loc">上海 · 远程友好</p>
+            <ul class="skill-chips">
+              <li>TypeScript</li><li>WebGL</li><li>Canvas</li><li>React</li>
+              <li>设计工程</li><li>动效设计</li><li>可访问性</li>
+            </ul>
+            <div class="profile-actions">
+              <button class="btn btn-primary btn-sm" data-modal-open data-cursor="写邮件">写邮件</button>
+              <button class="btn btn-ghost btn-sm" id="copyEmail" data-cursor="复制邮箱">复制邮箱</button>
+            </div>
+          </div>
+          <div class="timeline glass" data-reveal="up" data-reveal-delay="120">
+            <h4>时间线</h4>
+            <ol>
+              <li><span>2025</span> 独立创意工程顾问</li>
+              <li><span>2022</span> Halo Studio 前端负责人</li>
+              <li><span>2020</span> Nebula 高级前端</li>
+              <li><span>2018</span> 从工业设计转向前端</li>
+            </ol>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================= LAB =========================== -->
+    <section class="section" id="lab">
+      <header class="section-head">
+        <p class="section-kicker" data-reveal="left">04 — 交互实验室</p>
+        <h2 class="section-title" data-reveal="up">实时调参</h2>
+        <p class="section-lead" data-reveal="up">这些滑块真的连着渲染管线，拖动就能看到场景变化。</p>
+      </header>
+
+      <div class="lab-grid">
+        <div class="lab-panel glass" data-reveal="up">
+          <label class="ctrl">
+            <span>粒子数量 <b id="vCount">420</b></span>
+            <input type="range" id="rCount" min="0" max="1200" step="20" value="420" data-cursor>
+          </label>
+          <label class="ctrl">
+            <span>泛光强度 <b id="vBloom">0.45</b></span>
+            <input type="range" id="rBloom" min="0" max="1" step="0.05" value="0.45" data-cursor>
+          </label>
+          <label class="ctrl">
+            <span>自动旋转 <b id="vSpin">0.18</b></span>
+            <input type="range" id="rSpin" min="-0.6" max="0.6" step="0.02" value="0.18" data-cursor>
+          </label>
+          <label class="ctrl">
+            <span>相机拉远 <b id="vDist">9.0</b></span>
+            <input type="range" id="rDist" min="4" max="16" step="0.2" value="9" data-cursor>
+          </label>
+          <label class="ctrl">
+            <span>雾气浓度 <b id="vFog">0.60</b></span>
+            <input type="range" id="rFog" min="0" max="1" step="0.05" value="0.6" data-cursor>
+          </label>
+          <div class="swatch-row">
+            <span>主光色</span>
+            <div class="swatches" id="swatches">
+              <button data-color="#8ad7ff" style="--c:#8ad7ff" aria-label="冰蓝"></button>
+              <button data-color="#c2a8ff" style="--c:#c2a8ff" aria-label="薰衣草"></button>
+              <button data-color="#ffb0d8" style="--c:#ffb0d8" aria-label="樱粉"></button>
+              <button data-color="#9dffd8" style="--c:#9dffd8" aria-label="薄荷"></button>
+            </div>
+          </div>
+        </div>
+        <div class="lab-note glass" data-reveal="up" data-reveal-delay="120">
+          <h4>发生什么了？</h4>
+          <p>滑块直接写入 <code>scene.bloom</code>、<code>controls.autoRotate</code>、
+            <code>camera.position</code> 等引擎字段，下一帧立即生效——没有中间状态，没有重排。</p>
+          <p class="muted">提示：粒子数量在移动端会被自动限制到 400，避免过热降频。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== CONTACT ========================= -->
+    <section class="section contact" id="contact">
+      <div class="contact-card glass" data-reveal="scale">
+        <p class="section-kicker">05 — 联系</p>
+        <h2 class="section-title big">有想法？<br />我们把它做成可以转起来的。</h2>
+        <p>接受长期合作与短期冲刺。通常 24 小时内回复。</p>
+        <div class="contact-actions">
+          <a class="btn btn-primary" href="mailto:hi@aurora.dev" data-magnetic data-cursor="发邮件">
+            <span class="btn-label">hi@aurora.dev</span><span class="btn-arrow">→</span>
+          </a>
+          <button class="btn btn-glass" id="copyEmail2" data-cursor="复制邮箱">复制邮箱</button>
+        </div>
+      </div>
+      <footer class="site-foot">
+        <span>© 2025 林昭 · 手写 3D 引擎演示</span>
+        <span class="foot-links">
+          <a href="#hero" data-cursor>返回顶部</a>
+          <a href="https://github.com" data-cursor>GitHub</a>
+          <a href="#work" data-cursor>作品</a>
+        </span>
+      </footer>
+    </section>
+  </main>
+
+  <!-- 模态框 -->
+  <div class="modal" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-panel glass">
+      <button class="modal-close" data-modal-close aria-label="关闭">×</button>
+      <h3 id="modalTitle">开始一段合作</h3>
+      <p class="muted">填写后会在本地校验，不会真的发出请求（这是演示站点）。</p>
+      <form class="modal-form" id="contactForm">
+        <label><span>称呼</span><input type="text" name="name" placeholder="你的名字" required></label>
+        <label><span>邮箱</span><input type="email" name="email" placeholder="you@example.com" required></label>
+        <label><span>预算区间</span>
+          <select name="budget">
+            <option>¥ 5 万以内</option>
+            <option>¥ 5–15 万</option>
+            <option>¥ 15 万以上</option>
+          </select>
+        </label>
+        <label><span>简要需求</span><textarea name="msg" rows="4" placeholder="想要做什么？"></textarea></label>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary" data-cursor="发送">发送</button>
+          <button type="button" class="btn btn-ghost" data-modal-close data-cursor="取消">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../vendor/dse.js"></script>
+  <script src="../../vendor/fx.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>
